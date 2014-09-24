@@ -44,7 +44,7 @@ public class ProgramChange extends ChannelEvent
 
         public int programNumber()
         {
-            return this.ordinal() + 1;
+            return this.ordinal();
         }
     }
 }
