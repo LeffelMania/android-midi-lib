@@ -1,8 +1,3 @@
-Notice
-=============
-
-This project is no longer actively maintained. Another user has repackaged this library as a proper Android library and will be continuing development there. https://github.com/pdrogfer/MidiDroid
-
 Android MIDI Library
 =============
 
