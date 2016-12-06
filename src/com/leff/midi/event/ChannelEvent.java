@@ -173,7 +173,11 @@ public class ChannelEvent extends MidiEvent
             case NOTE_OFF:
                 return new NoteOff(tick, delta, channel, val1, val2);
             case NOTE_ON:
-                return new NoteOn(tick, delta, channel, val1, val2);
+                if (val2 > 0) {
+				    return new NoteOn(tick, delta, channel, val1, val2);
+    			} else {
+    				return new NoteOff(tick, delta, channel, val1, val2);
+    			}
             case NOTE_AFTERTOUCH:
                 return new NoteAftertouch(tick, delta, channel, val1, val2);
             case CONTROLLER:
