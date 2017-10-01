@@ -19,6 +19,7 @@ package com.leff.midi.util;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import com.leff.midi.MidiFile;
 import com.leff.midi.MidiTrack;
@@ -30,8 +31,8 @@ public class MidiProcessor
 {
     private static final int PROCESS_RATE_MS = 8;
 
-    private HashMap<Class<? extends MidiEvent>, ArrayList<MidiEventListener>> mEventsToListeners;
-    private HashMap<MidiEventListener, ArrayList<Class<? extends MidiEvent>>> mListenersToEvents;
+    private HashMap<Class<? extends MidiEvent>, List<MidiEventListener>> mEventsToListeners;
+    private HashMap<MidiEventListener, List<Class<? extends MidiEvent>>> mListenersToEvents;
 
     private MidiFile mMidiFile;
     private boolean mRunning;
@@ -52,8 +53,8 @@ public class MidiProcessor
         mMPQN = Tempo.DEFAULT_MPQN;
         mPPQ = mMidiFile.getResolution();
 
-        mEventsToListeners = new HashMap<Class<? extends MidiEvent>, ArrayList<MidiEventListener>>();
-        mListenersToEvents = new HashMap<MidiEventListener, ArrayList<Class<? extends MidiEvent>>>();
+        mEventsToListeners = new HashMap<Class<? extends MidiEvent>, List<MidiEventListener>>();
+        mListenersToEvents = new HashMap<MidiEventListener, List<Class<? extends MidiEvent>>>();
 
         mMetronome = new MetronomeTick(new TimeSignature(), mPPQ);
 
@@ -89,7 +90,7 @@ public class MidiProcessor
 
         mMetronome.setTimeSignature(new TimeSignature());
 
-        ArrayList<MidiTrack> tracks = mMidiFile.getTracks();
+        List<MidiTrack> tracks = mMidiFile.getTracks();
 
         if(mEventQueues == null)
         {
@@ -141,7 +142,7 @@ public class MidiProcessor
     public void registerEventListener(MidiEventListener mel, Class<? extends MidiEvent> event)
     {
 
-        ArrayList<MidiEventListener> listeners = mEventsToListeners.get(event);
+        List<MidiEventListener> listeners = mEventsToListeners.get(event);
         if(listeners == null)
         {
 
@@ -154,7 +155,7 @@ public class MidiProcessor
             listeners.add(mel);
         }
 
-        ArrayList<Class<? extends MidiEvent>> events = mListenersToEvents.get(mel);
+        List<Class<? extends MidiEvent>> events = mListenersToEvents.get(mel);
         if(events == null)
         {
 
@@ -171,7 +172,7 @@ public class MidiProcessor
     public void unregisterEventListener(MidiEventListener mel)
     {
 
-        ArrayList<Class<? extends MidiEvent>> events = mListenersToEvents.get(mel);
+        List<Class<? extends MidiEvent>> events = mListenersToEvents.get(mel);
         if(events == null)
         {
             return;
@@ -180,7 +181,7 @@ public class MidiProcessor
         for(Class<? extends MidiEvent> event : events)
         {
 
-            ArrayList<MidiEventListener> listeners = mEventsToListeners.get(event);
+            List<MidiEventListener> listeners = mEventsToListeners.get(event);
             listeners.remove(mel);
         }
 
@@ -190,13 +191,13 @@ public class MidiProcessor
     public void unregisterEventListener(MidiEventListener mel, Class<? extends MidiEvent> event)
     {
 
-        ArrayList<MidiEventListener> listeners = mEventsToListeners.get(event);
+        List<MidiEventListener> listeners = mEventsToListeners.get(event);
         if(listeners != null)
         {
             listeners.remove(mel);
         }
 
-        ArrayList<Class<? extends MidiEvent>> events = mListenersToEvents.get(mel);
+        List<Class<? extends MidiEvent>> events = mListenersToEvents.get(mel);
         if(events != null)
         {
             events.remove(event);
@@ -236,7 +237,7 @@ public class MidiProcessor
     private void sendOnEventForClass(MidiEvent event, Class<? extends MidiEvent> eventClass)
     {
 
-        ArrayList<MidiEventListener> listeners = mEventsToListeners.get(eventClass);
+        List<MidiEventListener> listeners = mEventsToListeners.get(eventClass);
 
         if(listeners == null)
         {

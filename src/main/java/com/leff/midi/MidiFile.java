@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.leff.midi.util.MidiUtil;
 
@@ -38,7 +39,7 @@ public class MidiFile
     private int mTrackCount;
     private int mResolution;
 
-    private ArrayList<MidiTrack> mTracks;
+    private List<MidiTrack> mTracks;
 
     public MidiFile()
     {
@@ -50,7 +51,7 @@ public class MidiFile
         this(resolution, new ArrayList<MidiTrack>());
     }
 
-    public MidiFile(int resolution, ArrayList<MidiTrack> tracks)
+    public MidiFile(int resolution, List<MidiTrack> tracks)
     {
         mResolution = resolution >= 0 ? resolution : DEFAULT_RESOLUTION;
 
@@ -134,7 +135,7 @@ public class MidiFile
         return length;
     }
 
-    public ArrayList<MidiTrack> getTracks()
+    public List<MidiTrack> getTracks()
     {
         return mTracks;
     }
