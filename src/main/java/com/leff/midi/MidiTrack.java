@@ -26,6 +26,7 @@ import java.util.TreeSet;
 
 import com.leff.midi.event.MidiEvent;
 import com.leff.midi.event.NoteOn;
+import com.leff.midi.event.NoteOff;
 import com.leff.midi.event.meta.EndOfTrack;
 import com.leff.midi.event.meta.Tempo;
 import com.leff.midi.event.meta.TimeSignature;
@@ -163,9 +164,8 @@ public class MidiTrack
 
     public void insertNote(int channel, int pitch, int velocity, long tick, long duration)
     {
-
         insertEvent(new NoteOn(tick, channel, pitch, velocity));
-        insertEvent(new NoteOn(tick + duration, channel, pitch, 0));
+        insertEvent(new NoteOff(tick + duration, channel, pitch, 0));
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
