@@ -103,6 +103,18 @@ public class MidiProcessor
         }
     }
 
+    public void setMsElapsed(long ms)
+    {
+
+        // Can't effectively rewind, so go back to the beginning and fast-forward
+        if(mMsElapsed > ms)
+        {
+            reset();
+        }
+
+        mMsElapsed = ms;
+    }
+
     public boolean isStarted()
     {
         return mTicksElapsed > 0;
