@@ -19,6 +19,32 @@ package com.leff.midi.util;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * From the official "Standard MIDI File" specification:
+ * <p>
+ * Some numbers in MIDI Files are represented in
+ * a form called a variable-length quantity. These numbers are represented 7 bits per byte, most significant
+ * bits first. All bytes except the last have bit 7 (the most significant bit) set, and the last byte has bit
+ * 7 clear. If the number is between 0 and 127, it is thus represented exactly as one byte.
+ * <p>
+ * Here are some examples of numbers represented as variable-length quantities:
+ * <p>
+ * Number (hex) = Representation (hex)<br>
+ * <code>00 00 00 00 = 00 </code><br>
+ * <code>00 00 00 40 = 40 </code><br>
+ * <code>00 00 00 7F = 7F </code><br>
+ * <code>00 00 00 80 = 81 00 </code><br>
+ * <code>00 00 20 00 = C0 00 </code><br>
+ * <code>00 00 3F FF = FF 7F </code><br>
+ * <code>00 00 40 00 = 81 80 00 </code><br>
+ * <code>00 10 00 00 = C0 80 00 </code><br>
+ * <code>00 1F FF FF = FF FF 7F </code><br>
+ * <code>00 20 00 00 = 81 80 80 00 </code><br>
+ * <code>08 00 00 00 = C0 80 80 00 </code><br>
+ * <code>0F FF FF FF = FF FF FF 7F </code><br>
+ * <p>
+ * The largest number which is allowed is 0FFFFFFF 
+ */
 public class VariableLengthInt
 {
     private int mValue;
@@ -75,7 +101,7 @@ public class VariableLengthInt
                 ints[mSizeInBytes - 1] = (b & 0x7F);
                 break;
             }
-            ints[mSizeInBytes - 1] = (b & 0x7F);
+            ints[mSizeInBytes - 1] = (b & 0xFF);
 
             b = in.read();
         }
@@ -90,7 +116,7 @@ public class VariableLengthInt
         {
             mBytes[i] = (byte) ints[i];
 
-            mValue += ints[i] << shift;
+            mValue += (ints[i] & 0x7F) << shift;
             shift -= 7;
         }
     }
