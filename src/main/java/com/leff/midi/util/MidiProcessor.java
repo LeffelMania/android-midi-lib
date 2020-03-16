@@ -38,6 +38,7 @@ public class MidiProcessor
     private boolean mRunning;
     private double mTicksElapsed;
     private long mMsElapsed;
+	private long mSkipUntilMs;
 
     private int mMPQN;
     private int mPPQ;
@@ -101,6 +102,15 @@ public class MidiProcessor
         {
             mEventQueues[i] = new MidiTrackEventQueue(tracks.get(i));
         }
+    }
+
+    public void setElapsed(long ms)
+    {
+		if(ms < mMsElapsed)
+		{
+			reset();
+		}
+		mSkipUntilMs = ms;
     }
 
     public boolean isStarted()
@@ -230,8 +240,11 @@ public class MidiProcessor
             }
         }
 
-        this.sendOnEventForClass(event, event.getClass());
-        this.sendOnEventForClass(event, MidiEvent.class);
+		if(mSkipUntilMs == 0)
+		{
+        	this.sendOnEventForClass(event, event.getClass());
+        	this.sendOnEventForClass(event, MidiEvent.class);
+		}
     }
 
     private void sendOnEventForClass(MidiEvent event, Class<? extends MidiEvent> eventClass)
@@ -261,38 +274,50 @@ public class MidiProcessor
 
         while(mRunning)
         {
+			
+			if(mSkipUntilMs == 0)
+			{
+            	long now = System.currentTimeMillis();
+            	long msElapsed = now - lastMs;
 
-            long now = System.currentTimeMillis();
-            long msElapsed = now - lastMs;
+            	if(msElapsed < PROCESS_RATE_MS)
+            	{
+            	    try
+            	    {
+            	        Thread.sleep(PROCESS_RATE_MS - msElapsed);
+            	    }
+            	    catch(Exception e)
+            	    {
+            	    }
+            	    continue;
+            	}
 
-            if(msElapsed < PROCESS_RATE_MS)
-            {
-                try
-                {
-                    Thread.sleep(PROCESS_RATE_MS - msElapsed);
-                }
-                catch(Exception e)
-                {
-                }
-                continue;
-            }
+            	double ticksElapsed = MidiUtil.msToTicks(msElapsed, mMPQN, mPPQ);
 
-            double ticksElapsed = MidiUtil.msToTicks(msElapsed, mMPQN, mPPQ);
+            	if(ticksElapsed < 1)
+            	{
+            	    continue;
+            	}
 
-            if(ticksElapsed < 1)
-            {
-                continue;
-            }
+            	if(mMetronome.update(ticksElapsed))
+            	{
+            	    dispatch(mMetronome);
+            	}
 
-            if(mMetronome.update(ticksElapsed))
-            {
-                dispatch(mMetronome);
-            }
-
-            lastMs = now;
-            mMsElapsed += msElapsed;
-            mTicksElapsed += ticksElapsed;
-
+            	lastMs = now;
+            	mMsElapsed += msElapsed;
+	            mTicksElapsed += ticksElapsed;
+			}
+			else
+			{
+				mMsElapsed += PROCESS_RATE_MS;
+				mTicksElapsed += MidiUtil.msToTicks(PROCESS_RATE_MS, mMPQN, mPPQ);
+				if(mMsElapsed > mSkipUntilMs)
+				{
+					mSkipUntilMs = 0;
+				}
+			}
+			
             boolean more = false;
             for(int i = 0; i < mEventQueues.length; i++)
             {
